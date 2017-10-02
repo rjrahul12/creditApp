@@ -1,0 +1,174 @@
+<main>
+<% if current_user.role == 1%>
+<h3>You are the boss</h3>
+
+	<table>
+		<tr>
+		<th colspan = "6" >
+			Burrowers requests
+		</th>
+		</tr>
+		<tr>
+		<th >
+			E-mail
+		</th>
+		<th>
+			Request Amt.
+		</th>
+		<th>
+			Request Status
+		</th>
+		<th>
+			Balance
+		</th>
+		<th>
+			Paid Amt.
+		</th>
+		<th>
+			Approve
+		</th>
+		</tr>
+		
+		<%cd = Creditdetail.all%>
+		<% cd.each do |f|%>
+			<tr>
+				<% user = User.find_by_id(f.user_id)%>
+				<td >
+					<%=user.email%>
+				</td>
+				<td>
+					<%=f.amount%>
+				</td>
+				<td>
+					<% if f.requestStatus%>
+						<font color="green">Approved</font>
+						<%else%>
+						<font color="#ff8000">pending</font>
+						<%end%>
+				</td>
+				<td>
+					<%=user.cl%>
+				</td>
+				<td>
+					<%=f.repaidAmount%>
+				</td>
+				<td>
+					<%if !f.requestStatus%>
+						<form action="approval" method = post>
+						<input type="hidden" name="id" value="<%=f.id%>">
+						<input type="submit" value="Approval">
+
+						</form>
+						<%else%>
+						<font color="green">Approved</font>
+					<%end%>
+
+				</td>
+			</tr>
+
+
+		<%end%>
+
+	</table>
+
+
+
+<%else%>
+<h3>BALANCE AMOUNT: <%=current_user.cl%></h3>
+<%@creditdetail = Creditdetail.new%>
+
+<%= form_for @creditdetail do |f| %>
+
+	  <div class="field">
+	    <%= f.label :amount %><br>
+	    <%= f.number_field :amount %>
+	  </div>
+	 
+	  <div class="actions">
+	    <%= f.submit :Create_Credentials%>
+	  </div>
+	<% end %>
+	<table>
+		<tr>
+		<th colspan = "6" >
+			Your requests
+		</th>
+		</tr>
+		<tr>
+		<th>
+			Request Amt.
+		</th>
+		<th>
+			Request Status
+		</th>
+		<th>
+			Paid Amt.
+		</th>
+		<th>
+			Is Paid
+		</th>
+		<th>
+			Payment Option
+		</th>
+		</tr>
+		
+		<%cd = Creditdetail.where(user_id: current_user)%>
+		<% cd.each do |f|%>
+			<tr>
+				<% user = User.find_by_id(f.user_id)%>
+				<td>
+					<%=f.amount%>
+				</td>
+				<td>
+					<% if f.requestStatus%>
+						<font color="green">approved</font>
+						<%else%>
+						<font color="#ff8000">pending</font>
+						<%end%>
+				</td>
+				<td>
+					<%=f.repaidAmount%>
+				</td>
+				<td>
+					<%if f.isPaid%>
+						<font color="green">Yes</font>
+					<%else%>
+						<font color="red">No</font>
+					<%end%>
+				</td>
+				<td>
+				<%if !f.isPaid && !f.requestStatus%>
+					<font color="red">Not Approved</font>
+
+				<%elsif !f.isPaid && f.requestStatus%>
+						<form action="payment" method = post>
+						<input type="hidden" name="id" value="<%=f.id%>">
+						<input type="submit" value="Payment">
+						</form>
+
+				<%elsif f.isPaid && f.requestStatus%>
+					<font color="green">Transaction Completed</font>
+
+
+				<%end%>
+					
+					
+				</td>
+			</tr>
+
+
+		<%end%>
+
+	</table>
+
+
+<%end%>
+</main>
+<style type="text/css">
+  body{
+    background-color: #cc0001;
+    color: white;
+    
+  }
+ 
+</style>
